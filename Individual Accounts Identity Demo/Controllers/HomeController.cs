@@ -1,4 +1,6 @@
 ﻿using Individual_Accounts_Identity_Demo.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,16 +13,18 @@ namespace Individual_Accounts_Identity_Demo.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private UserManager<AppUser> userManager;
+        public HomeController(UserManager<AppUser> userMgr)
         {
-            _logger = logger;
+            userManager = userMgr;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            AppUser user = await userManager.GetUserAsync(HttpContext.User);
+            string message = $"Welcome {user.UserName}!";
+            return View((object)message);
         }
 
         public IActionResult Privacy()
